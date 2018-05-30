@@ -107,8 +107,10 @@ Download_goflyway(){
 	fi
 	[[ ! -e "goflyway_linux.tar.gz" ]] && echo -e "${Error} GoFlyway 下载失败 !" && exit 1
 	tar -xzf goflyway_linux.tar.gz
-	[[ ! -e "goflyway" ]] && echo -e "${Error} GoFlyway 解压失败 !" && exit 1
+	[[ ! -e "goflyway" ]] && echo -e "${Error} GoFlyway 解压失败 !" && rm -f goflyway_linux.tar.gz && exit 1
+	rm -f goflyway_linux.tar.gz
 	chmod +x goflyway
+	./goflyway -gen-ca
 	echo "${new_ver}" > ${Now_ver_File}
 }
 Service_goflyway(){
@@ -551,7 +553,7 @@ Set_iptables(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -560,7 +562,7 @@ Update_Shell(){
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ $sh_new_type == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.fun/Bash/goflyway.sh && chmod +x goflyway.sh
+				wget -N --no-check-certificate https://softs.loan/Bash/goflyway.sh && chmod +x goflyway.sh
 			else
 				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh && chmod +x goflyway.sh
 			fi
