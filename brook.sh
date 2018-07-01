@@ -127,7 +127,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
-	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	mkdir ${file}
 }
 Centos_yum(){
@@ -404,6 +404,9 @@ Uninstall_brook(){
 				done
 			fi
 		fi
+		if [[ ! -z $(crontab -l | grep "brook.sh monitor") ]]; then
+			crontab_monitor_brook_cron_stop
+		fi
 		rm -rf "${file}"
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook
@@ -576,7 +579,7 @@ Set_crontab_monitor_brook(){
 	crontab_monitor_brook_status=$(crontab -l|grep "brook.sh monitor")
 	if [[ -z "${crontab_monitor_brook_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
-		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[Y/n]"
+		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[Y/n]"
 		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
@@ -586,7 +589,7 @@ Set_crontab_monitor_brook(){
 		fi
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[y/N]"
+		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[y/N]"
 		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
@@ -624,7 +627,7 @@ crontab_monitor_brook_cron_stop(){
 crontab_monitor_brook(){
 	check_installed_status
 	check_pid
-	echo "${PID}"
+	#echo "${PID}"
 	if [[ -z ${PID} ]]; then
 		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 Brook服务端 未运行 , 开始启动..." | tee -a ${brook_log}
 		/etc/init.d/brook start
@@ -698,7 +701,7 @@ else
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 Brook
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Brook
 ————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Brook
