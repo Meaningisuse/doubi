@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.37
+#	Version: 2.0.38
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.37"
+sh_ver="2.0.38"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -270,6 +270,7 @@ Set_config_password(){
 }
 Set_config_method(){
 	echo -e "请选择要设置的ShadowsocksR账号 加密方式
+	
  ${Green_font_prefix} 1.${Font_color_suffix} none
  ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)
  
@@ -334,6 +335,7 @@ Set_config_method(){
 }
 Set_config_protocol(){
 	echo -e "请选择要设置的ShadowsocksR账号 协议插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} origin
  ${Green_font_prefix}2.${Font_color_suffix} auth_sha1_v4
  ${Green_font_prefix}3.${Font_color_suffix} auth_aes128_md5
@@ -370,6 +372,7 @@ Set_config_protocol(){
 }
 Set_config_obfs(){
 	echo -e "请选择要设置的ShadowsocksR账号 混淆插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} plain
  ${Green_font_prefix}2.${Font_color_suffix} http_simple
  ${Green_font_prefix}3.${Font_color_suffix} http_post
@@ -665,7 +668,7 @@ Installation_dependency(){
 	Check_python
 	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
 	#echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Install_SSR(){
 	check_root
@@ -1421,6 +1424,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/ssr" ]]; then
+				rm -rf /etc/init.d/ssr
+				Service_SSR
+			fi
 			if [[ $sh_new_type == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/ssr.sh && chmod +x ssr.sh
 			else

@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-jc37/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook-pf"
@@ -24,6 +24,9 @@ Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 
+check_root(){
+	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+}
 #检查系统
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
@@ -470,6 +473,7 @@ Modify_Enabled_pf(){
 	fi
 }
 Install_brook(){
+	check_root
 	[[ -e ${brook_file} ]] && echo -e "${Error} 检测到 Brook 已安装 !" && exit 1
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
@@ -678,6 +682,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/brook-pf" ]]; then
+				rm -rf /etc/init.d/brook-pf
+				Service_brook
+			fi
 			if [[ $sh_new_type == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/brook-pf.sh && chmod +x brook.sh
 			else
@@ -702,7 +710,7 @@ else
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 Brook
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Brook
 ————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Brook

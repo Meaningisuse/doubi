@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -26,6 +26,9 @@ Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 
+check_root(){
+	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+}
 #检查系统
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
@@ -70,7 +73,7 @@ Download_mtproxy(){
 	mkdir '/tmp/mtproxy'
 	cd '/tmp/mtproxy'
 	# wget -N --no-check-certificate "https://github.com/TelegramMessenger/MTProxy/archive/master.zip"
-	git clone https://github.com/TelegramMessenger/MTProxy
+	git clone https://github.com/TelegramMessenger/MTProxy.git
 	[[ ! -e "MTProxy/" ]] && echo -e "${Error} MTProxy 下载失败!" && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
 	cd MTProxy
 	make
@@ -114,6 +117,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Centos_yum(){
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
@@ -232,6 +236,7 @@ Set_mtproxy(){
 	fi
 }
 Install_mtproxy(){
+	check_root
 	[[ -e ${mtproxy_file} ]] && echo -e "${Error} 检测到 MTProxy 已安装 !" && exit 1
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_port
@@ -600,6 +605,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/mtproxy" ]]; then
+				rm -rf /etc/init.d/mtproxy
+				Service_mtproxy
+			fi
 			if [[ ${sh_new_type} == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/mtproxy.sh && chmod +x mtproxy.sh
 			else
